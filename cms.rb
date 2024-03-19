@@ -51,3 +51,15 @@ get "/:file_name" do
     redirect "/"
   end
 end
+
+get "/:file_name/edit" do
+  file_path = root + "/data/" + params[:file_name]
+
+  if valid_file? file_path
+    @text = File.read(file_path)
+    erb :edit, layout: :layout
+  else
+    session[:error] = "#{params[:file_name]} does not exist."
+    redirect "/"
+  end
+end

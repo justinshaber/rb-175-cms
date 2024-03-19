@@ -1,0 +1,9 @@
+1. Add an edit link next to each document file_name
+2. Link takes user to an edit page
+3. Create an edit page that includes the following:
+  'Edit the contents of #{file_name}'
+  A text box that has the current text displayed
+  A 'Save Changes' button
+4. Clicking 'Save Changes'
+  redirects to the index page
+  shown a message '$FILENAME has been updated.'

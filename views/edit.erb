@@ -1,0 +1,10 @@
+<div>
+  <label for="edit-box">Edit content of <%= params[:file_name] %>:</label>
+  <br>
+  <textarea id="edit-box" name="edit-box" rows="20" cols="80"><%= @text %></textarea>
+</div>
+<div>
+  <form action="/" method="get">
+    <button type="submit">Save Changes</button>
+  </form>
+</div>
