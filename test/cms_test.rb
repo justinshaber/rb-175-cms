@@ -60,4 +60,52 @@ class CMSTest < Minitest::Test
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"] 
     assert_includes last_response.body, "<strong>Carmel Middle School</strong>"
   end
+
+  def test_invalid_file_name_from_edit_page
+    get "/notafile.txt/edit"
+    file_path = "data/notafile.txt"
+
+    refute File.file?(file_path)
+    assert_equal 302, last_response.status
+    assert_equal "http://example.org/", last_response["Location"]
+
+    get last_response["Location"]
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "notafile.txt does not exist."
+
+    get "/"
+
+    assert_equal 200, last_response.status
+    refute_includes last_response.body, "notafile.txt does not exist."
+  end
+
+  def test_edit_page
+    get "/about.txt/edit"
+    file_path = "data/about.txt"
+    text = File.read(file_path)
+
+    assert_equal 200, last_response.status
+    assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
+    assert_includes last_response.body, text
+    assert_includes last_response.body, "<textarea"
+    assert_includes last_response.body, %q(<input type="submit")
+  end
+
+  def test_post_edit
+    post "/about.txt", content: "new content"
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "about.txt was updated."
+
+    get "/about.txt"
+    text = File.read("data/about.txt")
+
+    assert_equal 200, last_response.status
+    assert_equal text, "new content"
+  end
 end

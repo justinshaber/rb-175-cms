@@ -1,10 +1,9 @@
-<div>
-  <label for="edit-box">Edit content of <%= params[:file_name] %>:</label>
-  <br>
-  <textarea id="edit-box" name="edit-box" rows="20" cols="80"><%= @text %></textarea>
-</div>
-<div>
-  <form action="/" method="get">
-    <button type="submit">Save Changes</button>
-  </form>
-</div>
+<form action="/<%= @file_name %>" method="post">
+  <label for="content">Edit content of <%= @file_name %>:</label>
+  <div>
+    <textarea type="text" id="content" name="content" rows="20" cols="80"><%= @text %></textarea>
+  </div>
+  <input type="submit" value="Save Changes">
+</form>
+
+# this is where you left off! Change get to post, create an error message, update the file, and redirect home
