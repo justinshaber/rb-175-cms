@@ -1,1 +1,1 @@
-**Carmel Middle School**, home of the _Cougars_, is located about 1 mile east along **Carmel** Valley Road.
+**Carmel Middle School**, home of the _Cougars_, is located about 1 mile east along Carmel Valley Road.

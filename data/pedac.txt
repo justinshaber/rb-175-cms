@@ -1,9 +1,10 @@
-1. Add an edit link next to each document file_name
-2. Link takes user to an edit page
-3. Create an edit page that includes the following:
-  'Edit the contents of #{file_name}'
-  A text box that has the current text displayed
-  A 'Save Changes' button
-4. Clicking 'Save Changes'
-  redirects to the index page
-  shown a message '$FILENAME has been updated.'
+1. Add "New Document" link to home page
+2. Link takes user to page "/new"
+  - page includes text input with label and 'create' button
+  - redirect home
+3. Upon submit
+  - redirect home
+  - flash message "$FILENAME was created"
+  - file appears on list
+4. If user attempts to create doc with no name, re-display form with error message
+  - error: "A name is required". 

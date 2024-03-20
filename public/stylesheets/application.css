@@ -1,0 +1,48 @@
+a {
+  color: inherit;
+}
+
+body {
+  padding: 1em;
+  font: normal 18px sans-serif;
+  color: #3f3f3f;
+  background: #ffffff; 
+}
+
+form input[type="submit"] {
+  padding: 12px 12px;
+  margin: 0 40px 0 0;
+  font: normal 18px sans-serif;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  background: #dd5f4f;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -webkit-transition: background-color 200ms ease;
+  -moz-transition: background-color 200ms ease;
+  -o-transition: background-color 200ms ease; 
+}
+
+.flash {
+  max-width: 960px;
+  padding: 10px 20px;
+  margin: 20px auto 1.5em auto;
+  color: #3399cc;
+  background: #CBE5F2; 
+}
+
+.flash p {
+  font-size: 14px;
+  font-weight: bold; 
+}
+
+.flash.error {
+  color: #ff6633;
+  background: #FFCFBF; 
+}
+
+.flash.success {
+  color: #33cc99;
+  background: #CBF2E5; 
+}
