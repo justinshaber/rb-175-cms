@@ -9,19 +9,8 @@ body {
   background: #ffffff; 
 }
 
-form input[type="submit"] {
-  padding: 12px 12px;
-  margin: 0 40px 0 0;
-  font: normal 18px sans-serif;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  background: #dd5f4f;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  -webkit-transition: background-color 200ms ease;
-  -moz-transition: background-color 200ms ease;
-  -o-transition: background-color 200ms ease; 
+form.inline {
+  display: inline;
 }
 
 .flash {

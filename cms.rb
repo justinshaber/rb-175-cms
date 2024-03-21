@@ -115,3 +115,12 @@ post "/:file_name" do
   redirect "/"
 end
 
+post "/:file_name/delete" do
+  file_name = params[:file_name]
+  file_path = File.join(data_path, file_name)
+  File.delete file_path
+
+  session[:success] = file_name + " was deleted."
+  redirect "/"
+end
+

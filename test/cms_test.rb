@@ -1,8 +1,8 @@
 ENV["RACK_ENV"] = "test"
 
+require "fileutils"
 require "minitest/autorun"
 require "rack/test"
-require "fileutils"
 
 require_relative "../cms"
 
@@ -127,9 +127,24 @@ class CMSTest < Minitest::Test
     assert_includes last_response.body, "about.txt was updated."
 
     get "/about.txt"
-    text = File.read("data/about.txt")
 
     assert_equal 200, last_response.status
-    assert_equal text, "new content"
+    assert_includes last_response.body, "new content"
+  end
+
+  def test_delete
+    create_document "about.md"
+    create_document "changes.txt"
+
+    post "/about.md/delete"
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "changes.txt"
+    assert_includes last_response.body, "about.md was deleted."
+
+    get "/"
+    assert_includes last_response.body, "changes.txt"
+    refute_includes last_response.body, "about.md"
   end
 end
