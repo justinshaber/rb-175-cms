@@ -9,6 +9,16 @@ configure do
   set :session_secret, SecureRandom.hex(32)
 end
 
+helpers do
+  def sign_in_message
+    session[:signed_in] ? "Sign out" : "Sign in"
+  end
+end
+
+before do
+  session[:signed_in] = true
+end
+
 def data_path
   if ENV["RACK_ENV"] == "test"
     File.expand_path("../test/data", __FILE__)

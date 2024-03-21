@@ -1,10 +1,24 @@
-1. Add "New Document" link to home page
-2. Link takes user to page "/new"
-  - page includes text input with label and 'create' button
-  - redirect home
-3. Upon submit
-  - redirect home
-  - flash message "$FILENAME was created"
-  - file appears on list
-4. If user attempts to create doc with no name, re-display form with error message
-  - error: "A name is required". 
+1. Signed out user sees "sign in" link on home page.
+  - sign in link routes to "/users/signin"
+2. "/users/signin"
+  - Username label and input
+  - password label and input
+  - sign in button
+3. Submitting sign in
+  - Username: admin, Password: secret
+  - if successful
+    - redirected to home
+    - session[:success] = "Welcome!"
+    - "Signed in as admin" with 'Sign Out' button at bottom
+  - if unsuccessful
+    - redisplay login page
+    - invalid username should appear in username input
+    - session[:error] = "Invalid Credentials"
+4. 'Sign Out' button
+  - signs user out
+  - shows sign out home page
+  - session[:success] = "You have been signed out"
+
+
+After all that is set up:
+5. Only show edit and delete buttons if a user is signed in.

@@ -3,12 +3,25 @@
     <li>
       <div>
         <a href="/<%= file_name %>"><%= file_name %></a>
-        <a href="/<%= file_name %>/edit">edit</a>
-        <form action="/<%= file_name %>/delete" method="post" class="inline">
-          <button type="submit">delete</button>
-        </form>
+        <% if session[:signed_in] %>
+          <a href="/<%= file_name %>/edit">edit</a>
+          <form action="/<%= file_name %>/delete" method="post" class="inline">
+            <button type="submit">delete</button>
+          </form>
+        <% end %>
       </div>
     </li>
   <% end %>
 </ul>
-<a href="/new">New Document</a>
+
+<% if session[:signed_in] %>
+  <a href="/new">New Document</a>
+<% end %>
+<br>
+<br>
+<form action="/users/signin" method="get" class="inline">
+  <% if session[:signed_in] %>
+    <label><em>Signed in as admin</em></label>
+  <% end %>
+  <button type="submit"><%= sign_in_message %></button>
+</form>
