@@ -15,15 +15,18 @@ helpers do
   end
 end
 
-before do
-  session[:signed_in] = true
-end
-
 def data_path
   if ENV["RACK_ENV"] == "test"
     File.expand_path("../test/data", __FILE__)
   else
     File.expand_path("../data", __FILE__)
+  end
+end
+
+def require_signed_in_user
+  unless session[:signed_in]
+    session[:error] = "You must be signed in to do that."
+    redirect "/"
   end
 end
 
@@ -49,43 +52,6 @@ def load_file_content(file_path)
   end
 end
 
-get "/" do
-  pattern = File.join(data_path, "*")
-  @file_names = Dir.glob(pattern).map do |path|
-    File.basename(path)
-  end
-
-  erb :home, layout: :layout
-end
-
-get "/new" do
-  erb :new_doc, layout: :layout
-end
-
-get "/:file_name" do
-  file_path = File.join(data_path, params[:file_name])
-
-  if valid_file? file_path
-    load_file_content(file_path)
-  else
-    session[:error] = "#{params[:file_name]} does not exist."
-    redirect "/"
-  end
-end
-
-get "/:file_name/edit" do
-  @file_name = params[:file_name]
-  file_path = File.join(data_path, @file_name)
-
-  if valid_file? file_path
-    @text = File.read(file_path)
-    erb :edit, layout: :layout
-  else
-    session[:error] = @file_name + " does not exist."
-    redirect "/"
-  end
-end
-
 def valid_ext?(file_name)
   ext = File.extname file_name
   ext.match?('.') && ext.match?(/[A-Za-z]/)
@@ -102,7 +68,51 @@ def valid_file_name?(file_name)
   true
 end
 
+get "/" do
+  pattern = File.join(data_path, "*")
+  @file_names = Dir.glob(pattern).map do |path|
+    File.basename(path)
+  end
+
+  erb :home, layout: :layout
+end
+
+get "/new" do
+  require_signed_in_user
+
+  erb :new_doc, layout: :layout
+end
+
+get "/:file_name" do
+  file_path = File.join(data_path, params[:file_name])
+
+  if valid_file? file_path
+    load_file_content(file_path)
+  else
+    session[:error] = "#{params[:file_name]} does not exist."
+    redirect "/"
+  end
+end
+
+get "/:file_name/edit" do
+  require_signed_in_user
+
+  @file_name = params[:file_name]
+  file_path = File.join(data_path, @file_name)
+
+  if valid_file? file_path
+    @text = File.read(file_path)
+    erb :edit, layout: :layout
+  else
+    session[:error] = @file_name + " does not exist."
+    redirect "/"
+  end
+end
+
+# create a new file
 post "/create" do
+  require_signed_in_user
+
   file_name = params[:file_name].strip
 
   if valid_file_name? file_name
@@ -116,7 +126,10 @@ post "/create" do
   end
 end
 
+# update an existing file
 post "/:file_name" do
+  require_signed_in_user
+
   file_name = params[:file_name]
   file_path = File.join(data_path, file_name)
   File.open(file_path, "w") { |f| f.write params[:content] }
@@ -126,6 +139,8 @@ post "/:file_name" do
 end
 
 post "/:file_name/delete" do
+  require_signed_in_user
+
   file_name = params[:file_name]
   file_path = File.join(data_path, file_name)
   File.delete file_path
@@ -134,3 +149,26 @@ post "/:file_name/delete" do
   redirect "/"
 end
 
+get "/users/signin" do
+  erb :sign_in, layout: :layout
+end
+
+post "/users/signin" do
+  if params[:username] == "admin" && params[:psw] == "secret"
+    session[:username] = params[:username]
+    session[:signed_in] = true
+    session[:success] = "Welcome!"
+    redirect "/"
+  else
+    session[:error] = "Invalid credentials."
+    status 422
+    erb :sign_in, layout: :layout
+  end
+end
+
+post "/users/signout" do
+  session.delete :username
+  session[:signed_in] = false
+  session[:success] = "You have been signed out"
+  redirect "/"
+end

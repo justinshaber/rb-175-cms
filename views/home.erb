@@ -19,9 +19,14 @@
 <% end %>
 <br>
 <br>
-<form action="/users/signin" method="get" class="inline">
-  <% if session[:signed_in] %>
-    <label><em>Signed in as admin</em></label>
-  <% end %>
-  <button type="submit"><%= sign_in_message %></button>
-</form>
+<% if session[:signed_in] %>
+  <form action="/users/signout" method="post" class="inline">
+    <label><em>Signed in as <%= session[:username] %></em></label>
+    <button type="submit">Sign out</button>
+  </form>
+<% else %>
+  <form action="/users/signin" method="get" class="inline">
+    <button type="submit">Sign in</button>
+  </form>
+<% end %>
+  

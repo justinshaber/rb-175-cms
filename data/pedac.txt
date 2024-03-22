@@ -1,5 +1,7 @@
 1. Signed out user sees "sign in" link on home page.
   - sign in link routes to "/users/signin"
+
+
 2. "/users/signin"
   - Username label and input
   - password label and input
@@ -18,7 +20,3 @@
   - signs user out
   - shows sign out home page
   - session[:success] = "You have been signed out"
-
-
-After all that is set up:
-5. Only show edit and delete buttons if a user is signed in.
