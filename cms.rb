@@ -1,8 +1,10 @@
+require 'yaml'
 require 'sinatra'
 require 'sinatra/reloader'
 require 'sinatra/content_for'
 require 'redcarpet'
 require 'tilt/erubis'
+require 'bcrypt'
 
 configure do
   enable :sessions
@@ -31,7 +33,7 @@ def require_signed_in_user
 end
 
 def valid_file?(file_path)
-  File.file?(file_path) 
+  File.file?(file_path)
 end
 
 def render_markdown(text)
@@ -64,8 +66,40 @@ def valid_file_name?(file_name)
   elsif !valid_ext? file_name
     session[:error] = "An extension is required."
     return false
+  elsif ["users.yml", "users.yaml"].include? file_name
+    unless admin?
+      session[:error] = "Requires admin access."
+      return false
+    end
   end
   true
+end
+
+def admin?
+  session[:username] == "admin"
+end
+
+def restricted_file?(file_name)
+  restricted_files = ["users.yml", "users.yaml"]
+  restricted_files.include? file_name
+end
+
+def valid_user?(username, password)
+  @users[username] && BCrypt::Password.new(@users[username]) == password
+end
+
+def manage_admin_access
+  if admin?
+    yield
+  else
+    session[:error] = "Requires admin access."
+    redirect "/"
+  end
+end
+
+def load_edit_text(file_path)
+  @text = File.read(file_path)
+  erb :edit
 end
 
 get "/" do
@@ -74,19 +108,21 @@ get "/" do
     File.basename(path)
   end
 
-  erb :home, layout: :layout
+  erb :home
 end
 
 get "/new" do
   require_signed_in_user
 
-  erb :new_doc, layout: :layout
+  erb :new_doc
 end
 
 get "/:file_name" do
   file_path = File.join(data_path, params[:file_name])
 
-  if valid_file? file_path
+  if restricted_file? params[:file_name]
+    manage_admin_access { load_file_content(file_path) }
+  elsif valid_file? file_path
     load_file_content(file_path)
   else
     session[:error] = "#{params[:file_name]} does not exist."
@@ -94,15 +130,17 @@ get "/:file_name" do
   end
 end
 
+# load edit page
 get "/:file_name/edit" do
   require_signed_in_user
 
   @file_name = params[:file_name]
   file_path = File.join(data_path, @file_name)
 
-  if valid_file? file_path
-    @text = File.read(file_path)
-    erb :edit, layout: :layout
+  if restricted_file? @file_name
+    manage_admin_access { load_edit_text(file_path) }
+  elsif valid_file? file_path
+    load_edit_text(file_path)
   else
     session[:error] = @file_name + " does not exist."
     redirect "/"
@@ -122,15 +160,22 @@ post "/create" do
     redirect "/"
   else
     status 422
-    erb :new_doc, layout: :layout
+    erb :new_doc
   end
 end
 
 # update an existing file
 post "/:file_name" do
   require_signed_in_user
-
   file_name = params[:file_name]
+
+  if restricted_file? file_name
+    unless admin?
+      session[:error] = "Requires admin access."
+      redirect "/"
+    end
+  end
+
   file_path = File.join(data_path, file_name)
   File.open(file_path, "w") { |f| f.write params[:content] }
 
@@ -140,8 +185,15 @@ end
 
 post "/:file_name/delete" do
   require_signed_in_user
-
   file_name = params[:file_name]
+
+  if restricted_file? file_name
+    unless admin?
+      session[:error] = "Requires admin access."
+      redirect "/"
+    end
+  end
+
   file_path = File.join(data_path, file_name)
   File.delete file_path
 
@@ -150,11 +202,13 @@ post "/:file_name/delete" do
 end
 
 get "/users/signin" do
-  erb :sign_in, layout: :layout
+  erb :sign_in
 end
 
 post "/users/signin" do
-  if params[:username] == "admin" && params[:psw] == "secret"
+  @users = YAML.load_file('data/users.yml')
+
+  if valid_user? params[:username], params[:psw]
     session[:username] = params[:username]
     session[:signed_in] = true
     session[:success] = "Welcome!"
@@ -162,7 +216,7 @@ post "/users/signin" do
   else
     session[:error] = "Invalid credentials."
     status 422
-    erb :sign_in, layout: :layout
+    erb :sign_in
   end
 end
 
@@ -172,3 +226,4 @@ post "/users/signout" do
   session[:success] = "You have been signed out"
   redirect "/"
 end
+

@@ -282,4 +282,36 @@ class CMSTest < Minitest::Test
     get last_response["Location"]
     assert_includes last_response.body, "You must be signed in to do that."
   end
+
+  def test_admin_update_users
+    create_document "users.yml"
+    post "/users.yml", {}, { "rack.session" => { signed_in: true, username: "admin" } }
+
+    assert_equal 302, last_response.status
+    assert_equal "users.yml was updated.", session[:success]
+  end
+
+  def test_non_admin_cannot_update_users
+    create_document "users.yml"
+    post "/users.yml", {}, { "rack.session" => { signed_in: true, username: "bill" } }
+
+    assert_equal 302, last_response.status
+    assert_equal "Requires admin access.", session[:error]
+  end
+
+  def test_admin_delete_user_file
+    create_document "users.yml"
+    post "/users.yml/delete", {}, { "rack.session" => { signed_in: true, username: "admin" } }
+
+    assert_equal 302, last_response.status
+    assert_equal "users.yml was deleted.", session[:success]
+  end
+
+  def test_non_admin_cannot_delete_user_file
+    create_document "users.yml"
+    post "/users.yml/delete", {}, { "rack.session" => { signed_in: true, username: "bill" } }
+
+    assert_equal 302, last_response.status
+    assert_equal "Requires admin access.", session[:error]
+  end
 end

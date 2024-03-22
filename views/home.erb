@@ -1,5 +1,6 @@
 <ul>
   <% @file_names.each do |file_name| %>
+    <% next if file_name == "users.yml" %>
     <li>
       <div>
         <a href="/<%= file_name %>"><%= file_name %></a>
@@ -20,10 +21,17 @@
 <br>
 <br>
 <% if session[:signed_in] %>
-  <form action="/users/signout" method="post" class="inline">
-    <label><em>Signed in as <%= session[:username] %></em></label>
-    <button type="submit">Sign out</button>
-  </form>
+  <div>
+    <form action="/users/signout" method="post" class="inline">
+      <label><em>Signed in as <%= session[:username] %></em></label>
+      <button type="submit">Sign out</button>
+    </form>
+  </div>
+  <div>
+    <% if session[:username] == "admin" %>
+      <a href="/users.yml/edit">manage users</a>
+    <% end %>
+  </div>
 <% else %>
   <form action="/users/signin" method="get" class="inline">
     <button type="submit">Sign in</button>
